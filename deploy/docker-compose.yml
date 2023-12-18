@@ -1,0 +1,44 @@
+version: '3.9'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: ./deploy/Dockerfile
+      target: prod
+    image: jenkins_rest_manage:${JENKINS_REST_MANAGE_VERSION:-latest}
+    restart: always
+    env_file:
+    - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      JENKINS_REST_MANAGE_HOST: 0.0.0.0
+      JENKINS_REST_MANAGE_DB_HOST: jenkins_rest_manage-db
+      JENKINS_REST_MANAGE_DB_PORT: 5432
+      JENKINS_REST_MANAGE_DB_USER: jenkins_rest_manage
+      JENKINS_REST_MANAGE_DB_PASS: jenkins_rest_manage
+      JENKINS_REST_MANAGE_DB_BASE: jenkins_rest_manage
+
+  db:
+    image: postgres:13.8-bullseye
+    hostname: jenkins_rest_manage-db
+    environment:
+      POSTGRES_PASSWORD: "jenkins_rest_manage"
+      POSTGRES_USER: "jenkins_rest_manage"
+      POSTGRES_DB: "jenkins_rest_manage"
+    volumes:
+    - jenkins_rest_manage-db-data:/var/lib/postgresql/data
+    restart: always
+    healthcheck:
+      test: pg_isready -U jenkins_rest_manage
+      interval: 2s
+      timeout: 3s
+      retries: 40
+
+
+
+volumes:
+  jenkins_rest_manage-db-data:
+    name: jenkins_rest_manage-db-data
