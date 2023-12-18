@@ -45,6 +45,11 @@ class Settings(BaseSettings):
     db_pass: str = "jenkins_rest_manage"
     db_base: str = "jenkins_rest_manage"
     db_echo: bool = False
+    # Jenkins Settings
+    jenkins_url: str = "localhost"
+    jenkins_user: str = "example"
+    jenkins_password: str = "example"
+    jenkins_timeout: int = 30
 
     @property
     def db_url(self) -> URL:
